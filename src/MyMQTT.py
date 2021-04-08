@@ -3,6 +3,7 @@ import paho.mqtt.client as mqtt # 1.5.1
 
 class MyMQTT:
     def __init__(self, clientName, host, user, password, qos = 0):
+        # define variables
         self.host = host
         self.user = user
         self.password = password
@@ -10,6 +11,13 @@ class MyMQTT:
         self.clientName = clientName
         self.client = None
         self.printPrefix = f"MQTT::{self.clientName}:"
+        # setup client
+        self.client = mqtt.Client( self.clientName )
+        self.client.username_pw_set( self.user, self.password )
+        self.client.on_connect = self.on_connect
+        self.client.on_disconnect = self.on_disconnect
+        self.client.on_log = self.on_log
+        self.client.on_publish = self.on_publish
 
     ## callbacks ##
     def on_connect(self, client, userdata, flags, rc):
@@ -28,15 +36,6 @@ class MyMQTT:
         print(self.printPrefix + ":on_publish:", result)
 
     ## callable funcions ##
-    def initialise(self):
-        print(self.printPrefix, "initialising")
-        self.client = mqtt.Client( self.clientName )
-        self.client.username_pw_set( self.user, self.password )
-        self.client.on_connect = self.on_connect
-        self.client.on_disconnect = self.on_disconnect
-        self.client.on_log = self.on_log
-        #self.client.on_publish = self.on_publish
-    
     def start(self):
         print(self.printPrefix, "start connection and loop...")
         self.client.connect(self.host)
