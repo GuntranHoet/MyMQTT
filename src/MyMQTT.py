@@ -1,6 +1,13 @@
 import time
 import paho.mqtt.client as mqtt # 1.5.1
 
+# Useful source with simple MQTT explenations:
+# http://www.steves-internet-guide.com/mqtt-basics-course/
+# Retained messages:
+# http://www.steves-internet-guide.com/mqtt-retained-messages-example/
+# Last will messages:
+# http://www.steves-internet-guide.com/mqtt-last-will-example/
+
 class MyMQTT:
     def __init__(self, clientName, host, user, password, qos = 0):
         # define variables
@@ -49,9 +56,9 @@ class MyMQTT:
         self.client.disconnect()
         print(self.printPrefix, "client disconnected, terminated")
 
-    def publish(self, topic, data):
+    def publish(self, topic, data, retain=True):
         print(self.printPrefix, "publishing ", topic, " = ", data, " ...")
-        self.client.publish(topic, data, self.qos, True)
+        self.client.publish(topic, data, self.qos, retain)
     
     def publishWithCallback(self, topic, _callback = None):
         data = _callback()
