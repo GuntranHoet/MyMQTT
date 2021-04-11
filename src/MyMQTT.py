@@ -18,6 +18,7 @@ class MyMQTT:
         self.clientName = clientName
         self.client = None
         self.printPrefix = f"MQTT::{self.clientName}:"
+        self.keepAlive = 60 # 60 is MQTT default
         # setup client
         self.client = mqtt.Client( self.clientName )
         self.client.username_pw_set( self.user, self.password )
@@ -26,7 +27,25 @@ class MyMQTT:
         self.client.on_log = self.on_log
         self.client.on_publish = self.on_publish
 
+    ###############################################################
+
+    ## optional setup functions ##
+    
+    def setup_setLastWill(self, topic, data, retain=True):
+        # we want to be sure this arrives
+        qos = self.qos if ( self.qos > 0 ) else 1
+        self.client.will_set(topic, data, qos, retain)
+        print(self.printPrefix + ":will_set:", f"set to '{topic}' = '{data}'")
+    
+    def setup_setKeepAlive(self, keepAlive = 60):#
+        # 60 is MQTT default
+        self.keepAlive = keepAlive
+        print(self.printPrefix + ":keepAlive:", f"set to '{keepAlive}'")
+
+    ###############################################################
+
     ## callbacks ##
+
     def on_connect(self, client, userdata, flags, rc):
         if rc == 0:
             print(self.printPrefix + ":on_connect:", "Connected OK")
@@ -42,10 +61,13 @@ class MyMQTT:
     def on_publish(self, client,userdata,result):
         print(self.printPrefix + ":on_publish:", result)
 
+    ###############################################################
+
     ## callable funcions ##
+
     def start(self):
         print(self.printPrefix, "start connection and loop...")
-        self.client.connect(self.host)
+        self.client.connect(self.host, keepalive=self.keepAlive)
         self.client.loop_start()
         time.sleep(2)
         print(self.printPrefix, "start successful")
